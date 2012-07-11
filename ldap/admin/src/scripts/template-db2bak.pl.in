@@ -121,8 +121,13 @@ libpath_add("@nss_libdir@");
 libpath_add("/usr/lib");
 
 $ENV{'SHLIB_PATH'} = "$ENV{'LD_LIBRARY_PATH'}";
+my $ldap_connection_method = $ENV{LDAP_CONNECTION_METHOD} || 'ldapi://';
+
 print("Back up directory: $archivedir\n");
-open(FOO, "| ldapmodify @ldaptool_opts@ $vstr -h {{SERVER-NAME}} -p {{SERVER-PORT}} -D \"$rootdn\" -w \"$passwd\" -a" );
+
+my $ldapmodify = sprintf '| ldapmodify @ldaptool_opts@ %s -h %s{{SERVER-NAME}} -p {{SERVER-PORT}} -D "%s" -w "%s" -a',
+    $vstr, $ldap_connection_method, $rootdn, $passwd;
+open(FOO, $ldapmodify );
 print(FOO "$entry");
 close(FOO);
 
